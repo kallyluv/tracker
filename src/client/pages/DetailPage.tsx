@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../api.js";
+import type { Item } from "../types.js";
 
 export default function DetailPage() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const nav = useNavigate();
-  const [item, setItem] = useState(null);
+  const [item, setItem] = useState<Item | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
     (async () => {
       setError("");
       try {
-        const data = await api.getItem(id);
+        const data = await api.getItem(id!);
         setItem(data);
       } catch (e) {
-        setError(e.message);
+        setError(e instanceof Error ? e.message : "Unknown error");
       }
     })();
   }, [id]);
@@ -23,10 +24,10 @@ export default function DetailPage() {
   async function onDelete() {
     if (!confirm("Delete this item?")) return;
     try {
-      await api.deleteItem(id);
+      await api.deleteItem(id!);
       nav("/");
     } catch (e) {
-      alert(e.message);
+      alert(e instanceof Error ? e.message : "Unknown error");
     }
   }
 

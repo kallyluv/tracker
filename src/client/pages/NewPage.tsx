@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api } from "../api.js";
 
@@ -10,18 +10,18 @@ export default function NewPage() {
   const [title, setTitle] = useState("");
 
   const [description, setDescription] = useState("");
-  const [status, setStatus] = useState("active");
+  const [status, setStatus] = useState<"active" | "done">("active");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
   // This state represents whether the new entry should be marked as important.
   // When it changes, the UI updates the ON/OFF display automatically.
   const [isImportant, setIsImportant] = useState(false);
-  const [tags, setTags] = useState([]);
+  const [tags, setTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState("");
 
 
-  async function onSubmit(e) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
     setSaving(true);
@@ -34,7 +34,7 @@ export default function NewPage() {
       });
       nav(`/items/${created.id}`);
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : "Unknown error");
       setSaving(false);
     }
   }
@@ -64,7 +64,7 @@ export default function NewPage() {
 
         <label className="field">
           <span>Status</span>
-          <select value={status} onChange={(e) => setStatus(e.target.value)}>
+          <select value={status} onChange={(e) => setStatus(e.target.value as "active" | "done")}>
             <option value="active">active</option>
             <option value="done">done</option>
           </select>

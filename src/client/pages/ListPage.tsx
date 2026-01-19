@@ -1,16 +1,17 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api.js";
+import type { Item, ListParams } from "../types.js";
 
 export default function ListPage() {
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<Item[]>([]);
   const [status, setStatus] = useState("all");
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const params = useMemo(() => {
-    const p = {};
+    const p: ListParams = {};
     if (status !== "all") p.status = status;
     if (q.trim()) p.q = q.trim();
     return p;
@@ -23,7 +24,7 @@ export default function ListPage() {
       const data = await api.listItems(params);
       setItems(data);
     } catch (e) {
-      setError(e.message);
+      setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
       setLoading(false);
     }

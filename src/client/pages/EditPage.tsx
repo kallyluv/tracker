@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { api } from "../api.js";
 
 export default function EditPage() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const nav = useNavigate();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [status, setStatus] = useState("active");
+  const [status, setStatus] = useState<"active" | "done">("active");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -17,27 +17,27 @@ export default function EditPage() {
     (async () => {
       setError("");
       try {
-        const item = await api.getItem(id);
+        const item = await api.getItem(id!);
         setTitle(item.title);
         setDescription(item.description);
         setStatus(item.status);
       } catch (e) {
-        setError(e.message);
+        setError(e instanceof Error ? e.message : "Unknown error");
       } finally {
         setLoading(false);
       }
     })();
   }, [id]);
 
-  async function onSubmit(e) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
     setSaving(true);
     try {
-      await api.updateItem(id, { title, description, status });
+      await api.updateItem(id!, { title, description, status });
       nav(`/items/${id}`);
     } catch (e) {
-      setError(e.message);
+      setError(e instanceof Error ? e.message : "Unknown error");
       setSaving(false);
     }
   }
@@ -60,7 +60,7 @@ export default function EditPage() {
 
         <label className="field">
           <span>Status</span>
-          <select value={status} onChange={(e) => setStatus(e.target.value)}>
+          <select value={status} onChange={(e) => setStatus(e.target.value as "active" | "done")}>
             <option value="active">active</option>
             <option value="done">done</option>
           </select>
